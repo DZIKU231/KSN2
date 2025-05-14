@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tracker Kasynowy</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<div class="text"><h1>CASINO TRACKER</h1></div>
+<body class="light">
+  <div class="pin-screen" id="pin-screen">
+    <h2>🔒 Wprowadź PIN</h2>
+    <input type="password" id="pin-input" maxlength="6" placeholder="PIN" />
+    <input type="button" class="login-btn" value="Zaloguj">
+    <p id="pin-msg"></p>
+  </div>
+
+  <div class="app hidden" id="app">
+    <header>
+      <button id="theme-toggle">🌙</button>
+    </header>
+
+    <form id="transaction-form">
+      <input type="date" id="date" required />
+      <input type="text" id="description" placeholder="Opis" required />
+      <input type="number" id="amount" placeholder="Kwota" required />
+      <select id="type">
+        <option value="profit">Wypłata</option>
+        <option value="loss">Wpłata</option>
+      </select>
+      <button id="subbtn" type="submit">Dodaj</button>
+      <input type="button"  id="resetBtn" value="Resetuj Statystki">
+    </form>
+
+    <div id="summary">
+      <p>💰 Wypłata: <span id="total-profit">0</span> zł</p>
+      <p>💸 Wpłata: <span id="total-loss">0</span> zł</p>
+      <p>🧾 Zysk/Strata: <span id="balance">0</span> zł</p>
+    </div>
+    <div id="efficiency">
+  📌 Skuteczność: <span id="efficiency-rate">0%</span>
+</div>
+
+    <div id="chart-section">
+  <div>
+    <button onclick="setChartMode('daily')">Dziennie</button>
+    <button onclick="setChartMode('weekly')">Tygodniowo</button>
+  </div>
+  <canvas id="stats-chart"></canvas>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <ul id="transaction-list"></ul>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
