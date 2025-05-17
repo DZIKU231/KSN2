@@ -174,3 +174,147 @@ body.light .text h1{
    background-size: 1000% auto;
    animation: textShine 4s ease-in-out infinite alternate;
 }
+
+ul li{
+  padding:5px;
+  transition: 0.3s ease-out;
+  border-radius: 10px;
+  position: relative;
+}
+
+
+ul li:hover{
+  background-color: rgba(0, 0, 0, 0.253);
+}
+
+ul li:hover .icon{
+  visibility: visible;
+}
+
+.icon{
+  position: absolute;
+  right: 10px;
+  top: 7px;
+  cursor: pointer;
+  visibility: hidden;
+  transition: 0.1s;
+  color: rgba(255, 0, 0, 0.623);
+}
+
+
+/* 🎯 Cel finansowy */
+#goal-section {
+  background: var(--card-bg, #8383835b);
+  padding: 1rem;
+  margin: 2rem 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.712);
+}
+
+#goal-section h3 {
+  margin-top: 0;
+  font-size: 1.3rem;
+}
+
+#goal-input {
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 150px;
+  margin-right: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+#set-goal-btn {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#set-goal-btn:hover {
+  background-color: #0056b3;
+}
+
+#goal-progress p {
+  margin: 0.5rem 0;
+}
+
+#goal-bar {
+  height: 16px;
+  border-radius: 8px;
+  appearance: none;
+}
+
+#goal-bar::-webkit-progress-bar {
+  background-color: #eee;
+  border-radius: 8px;
+}
+
+#goal-bar::-webkit-progress-value {
+  background-color: #4caf50;
+  border-radius: 8px;
+}
+
+#goal-warning {
+  margin-top: 0.5rem;
+}
+
+/* 🌙 Dla trybu ciemnego */
+body.dark #goal-section {
+  background-color: #2a2a2a;
+  color: #f1f1f1;
+  border: 1px solid rgba(255, 255, 255, 0.459);
+}
+
+body.dark #goal-input {
+  background-color: #444;
+  color: white;
+  border-color: #666;
+}
+
+body.dark #goal-bar::-webkit-progress-bar {
+  background-color: #444;
+}
+
+body.dark #goal-bar::-webkit-progress-value {
+  background-color: #81c784;
+}
+
+body.dark #set-goal-btn {
+  background-color: #2196f3;
+}
+
+body.dark #set-goal-btn:hover {
+  background-color: #1976d2;
+}
+
+
+#goal-bar {
+  transition: all 0.5s ease;
+}
+
+#goal-bar.low::-webkit-progress-value { background-color: #f44336; }
+#goal-bar.mid::-webkit-progress-value { background-color: #ff9800; }
+#goal-bar.high::-webkit-progress-value { background-color: #4caf50; }
+
+
+#goal-widget {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-weight: bold;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+body.light #goal-widget {
+  background: rgba(255,255,255,0.8);
+  color: #222;
+}

@@ -11,6 +11,12 @@ const themeToggle = document.getElementById('theme-toggle');
 const loginBtn = document.querySelector(".login-btn");
 const resetBtn = document.querySelector("#resetBtn");
 
+const goalInput = document.getElementById('goal-input');
+const setGoalBtn = document.getElementById('set-goal-btn');
+const goalProgressText = document.getElementById('goal-progress-text');
+const goalBar = document.getElementById('goal-bar');
+const goalWarning = document.getElementById('goal-warning');
+
 let chart;
 let chartMode = 'daily';
 resetBtn.addEventListener("click", ()=>{
@@ -28,18 +34,11 @@ function getTodayDate(){
   let dzien = data.getDate();
   let miesiac = data.getMonth() +1;
   const rok = data.getFullYear();
-  if(dzien < 10){
-    dzien = `0${dzien}`;
-  }
-  else if(miesiac < 10){
-    miesiac = `0${miesiac}`;
-  }
-  else{
-    return
-  }
+ if (dzien < 10) dzien = `0${dzien}`;
+if (miesiac < 10) miesiac = `0${miesiac}`;
 
-  const formatedDate = `${rok}-${miesiac}-${dzien}`;
-  document.getElementById("date").value = formatedDate;
+const formatedDate = `${rok}-${miesiac}-${dzien}`;
+document.getElementById("date").value = formatedDate;
 }
 
 function saveTransactions() {
@@ -49,7 +48,11 @@ function saveTransactions() {
 function loadTransactions() {
   const saved = localStorage.getItem('transactions');
   if (saved) {
-    transactions = JSON.parse(saved);
+    transactions = JSON.parse(saved).map(t => ({
+      ...t,
+      id: t.id || Date.now() + Math.random() 
+    }));
+    saveTransactions(); 
     renderTransactions();
     updateSummary();
   }
@@ -88,22 +91,37 @@ form.addEventListener('submit', function (e) {
   const amount = parseFloat(document.getElementById('amount').value);
   const type = document.getElementById('type').value;
 
-  const transaction = { date, desc, amount, type };
+  const transaction = {
+  id: Date.now(),
+  date,
+  desc,
+  amount,
+  type
+};
   transactions.push(transaction);
   saveTransactions();
   renderTransactions();
   updateSummary();
-  form.reset();
+  document.getElementById('amount').value = '';
 });
 
 function renderTransactions() {
   list.innerHTML = '';
   transactions.forEach(t => {
-    const li = document.createElement('li');
-    li.textContent = `${t.date} - ${t.desc}: ${t.type === 'profit' ? '+' : '-'}${t.amount} zł`;
-    list.appendChild(li);
-    updateChart();
+  const li = document.createElement('li');
+  li.dataset.id = t.id;
+
+  let i = document.createElement("i");
+  i.classList.add("fa-solid", "fa-trash", "icon");
+
+  i.addEventListener("click", () => {
+    deleteTransaction(t.id);
   });
+
+  li.innerHTML = `${t.date} - ${t.desc}: ${t.type === 'profit' ? '+' : '-'}${t.amount} zł`;
+  li.appendChild(i);
+  list.appendChild(li);
+});
 }
 
 function updateSummary() {
@@ -121,6 +139,7 @@ function updateSummary() {
 
   calculateEfficiency();
   updateChart();
+  updateGoalProgress(profit - loss);
 }
 
 // Motyw: przełączanie jasny/ciemny
@@ -181,6 +200,22 @@ function getWeekNumber(d) {
 function updateChart() {
   const grouped = groupTransactionsByPeriod(chartMode);
   const labels = Object.keys(grouped).sort();
+
+  const placeholder = document.getElementById('chart-placeholder');
+  const canvas = document.getElementById('stats-chart');
+
+  // brak danych = pokaż placeholder, schowaj canvas
+  if (labels.length === 0) {
+    if (chart) chart.destroy();
+    canvas.style.display = 'none';
+    placeholder.style.display = 'block';
+    return;
+  }
+
+  // są dane = pokaż wykres, schowaj placeholder
+  canvas.style.display = 'block';
+  placeholder.style.display = 'none';
+
   const profits = labels.map(key => grouped[key].profit);
   const losses = labels.map(key => grouped[key].loss);
 
@@ -206,9 +241,7 @@ function updateChart() {
     options: {
       responsive: true,
       plugins: {
-        legend: {
-          position: 'top',
-        },
+        legend: { position: 'top' },
         title: {
           display: true,
           text: chartMode === 'daily' ? 'Statystyki dzienne' : 'Statystyki tygodniowe',
@@ -218,9 +251,15 @@ function updateChart() {
   };
 
   if (chart) chart.destroy();
-  const ctx = document.getElementById('stats-chart').getContext('2d');
+  const ctx = canvas.getContext('2d');
   chart = new Chart(ctx, config);
-  calculateEfficiency();
+}
+
+function deleteTransaction(id) {
+  transactions = transactions.filter(t => t.id !== id);
+  saveTransactions();
+  renderTransactions();
+  updateSummary();
 }
 
 function calculateEfficiency(mode = chartMode) {
@@ -236,6 +275,105 @@ function calculateEfficiency(mode = chartMode) {
 
   const rate = keys.length > 0 ? (successCount / keys.length) * 100 : 0;
   document.getElementById('efficiency-rate').textContent = rate.toFixed(1) + '%';
+    const el = document.getElementById('efficiency-rate');
+el.textContent = rate.toFixed(1) + '%';
+el.style.color = rate >= 60 ? 'green' : rate <= 40 ? 'red' : 'orange';
+}
+
+
+
+let goal = parseFloat(localStorage.getItem('goal')) || 0;
+
+if (goal) goalInput.value = goal;
+
+setGoalBtn.addEventListener('click', () => {
+  goal = parseFloat(goalInput.value);
+  localStorage.setItem('goal', goal);
+  updateSummary(); 
+});
+
+function updateGoalProgress(balance) {
+  if (!goal || goal === 0) return;
+
+  const percentage = Math.min(Math.max((balance / goal) * 100, 0), 100);
+  goalProgressText.textContent = `${percentage.toFixed(1)}%`;
+  goalBar.value = percentage;
+
+  // ostrzeżenie przy przekroczeniu
+  if ((goal > 0 && balance >= goal) || (goal < 0 && balance <= goal)) {
+    goalWarning.textContent = '🎉 Cel osiągnięty!';
+  } else {
+    goalWarning.textContent = '';
+  }
+  
+}
+
+
+let inactivityTimeout;
+
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimeout);
+  inactivityTimeout = setTimeout(() => {
+    logout();
+  }, 1 * 60 * 1000); 
+}
+
+// Nasłuch na aktywność
+['click', 'mousemove', 'keypress', 'scroll'].forEach(evt => {
+  document.addEventListener(evt, resetInactivityTimer);
+});
+
+function logout() {
+  appEl.classList.add('hidden');
+  pinScreen.classList.remove('hidden');
+  pinInput.value = '';
+  pinMsg.textContent = '⌛ Wylogowano po minucie braku aktywności';
+}
+
+
+function updateGoalProgress(balance) {
+  if (!goal || goal === 0) return;
+
+  const percentage = Math.min(Math.max((balance / goal) * 100, 0), 100);
+  goalProgressText.textContent = `${percentage.toFixed(1)}%`;
+  goalBar.value = percentage;
+
+  goalBar.classList.remove("low", "mid", "high");
+  if (percentage < 33) goalBar.classList.add("low");
+  else if (percentage < 66) goalBar.classList.add("mid");
+  else goalBar.classList.add("high");
+  
+updateMotivationalText(percentage);
+}
+
+const goalNote = document.getElementById('goal-note');
+goalNote.value = localStorage.getItem("goalNote") || "";
+
+goalNote.addEventListener('input', () => {
+  localStorage.setItem("goalNote", goalNote.value);
+});
+
+function updateMotivationalText(percentage) {
+  const motivational = document.getElementById("goal-motivation");
+document.getElementById("goal-short-progress").innerHTML = `${percentage.toFixed(0)}%`;
+  if (isNaN(percentage) || percentage < 0) {
+    motivational.textContent = "🎯 Ustaw cel, aby zacząć śledzić postęp";
+    return;
+  }
+
+  if (percentage === 0) {
+    motivational.textContent = "🛫 Zaczynamy!";
+  } else if (percentage < 30) {
+    motivational.textContent = "💪 Początek drogi";
+  } else if (percentage < 60) {
+    motivational.textContent = "🚀 Dobrze Ci idzie!";
+  } else if (percentage < 90) {
+    motivational.textContent = "🔥 Blisko celu!";
+  } else if (percentage < 100) {
+    motivational.textContent = "✨ Prawie tam...";
+  } else {
+    motivational.textContent = "🎉 Cel zrealizowany! Gratulacje!";
+  }
 }
 
 
