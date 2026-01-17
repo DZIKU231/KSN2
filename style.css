@@ -153,6 +153,7 @@ header {
   z-index: -4;
    background-size: 1000% auto;
    animation: textShine 4s ease-in-out infinite alternate;
+   user-select: none;
 }
 
 @keyframes textShine {
@@ -317,4 +318,19 @@ body.dark #set-goal-btn:hover {
 body.light #goal-widget {
   background: rgba(255,255,255,0.8);
   color: #222;
+}
+
+#particles-js {
+  position: fixed;
+  inset: 0; /* top:0; right:0; bottom:0; left:0; */
+  z-index: 0; /* pod UI */
+}
+
+.text, .app, .pin-screen {
+  z-index: 1; /* nad particles */
+}
+
+
+#app{
+  margin-top: 10px;
 }

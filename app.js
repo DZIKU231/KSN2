@@ -17,6 +17,75 @@ const goalProgressText = document.getElementById('goal-progress-text');
 const goalBar = document.getElementById('goal-bar');
 const goalWarning = document.getElementById('goal-warning');
 
+const particleCount = window.innerWidth > 1200 ? 80 :
+                      window.innerWidth > 800 ? 60 : 40;
+                      
+  function setParticlesDynamic(balance) {
+  if (!window.pJSDom?.length) return;
+  const p = pJSDom[0].pJS;
+
+  let color;
+  if (balance > 0) color = "#00c853";
+  else if (balance < 0) color = "#ff1744";
+  else color = document.body.classList.contains("dark") ? "#ffffff" : "#000000";
+
+  p.particles.color.value = color;
+  p.particles.line_linked.color = color;
+  p.fn.particlesRefresh();
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Pobierz motyw z localStorage
+  const savedTheme = localStorage.getItem("theme") || "light";
+
+  // Inicjalizacja particles
+  particlesJS("particles-js", {
+  particles: {
+   number: { value: particleCount },
+    color: { value: "#ffffff" },
+    shape: { type: "circle" },
+    opacity: {value: 0.5,
+    anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false }
+},
+    size: {value: 3,
+    anim: { enable: true, speed: 3, size_min: 1, sync: false }
+},
+    line_linked: { enable: true, distance: 150, opacity: 0.4, color: "#ffffff" },
+    move: { enable: true, speed: 2 }
+  },
+  interactivity: {
+    events: {
+      onhover: { enable: true, mode: "grab" }, // cząsteczki przyciągają się do kursora
+    onclick: { enable: true, mode: "repulse" } // kliknięcie odpycha cząsteczki
+    },
+    modes: {
+       grab: { distance: 120, line_linked: { opacity: 0.8 } },
+    repulse: { distance: 150, duration: 0.4 }
+    }
+  },
+  retina_detect: true
+});
+
+
+  // Funkcja zmiany koloru przy toggle motywu
+  function setParticlesColor(color) {
+    if (!window.pJSDom?.length) return;
+    const p = pJSDom[0].pJS;
+    p.particles.color.value = color;
+    p.particles.line_linked.color = color;
+    p.fn.particlesRefresh();
+  }
+
+ 
+  const themeToggle = document.getElementById("theme-toggle");
+  themeToggle.addEventListener("click", () => {
+    const newColor = document.body.classList.contains("dark") ? "#ffffff" : "#000000";
+    setParticlesColor(newColor);
+  });
+});
+
+
 let chart;
 let chartMode = 'daily';
 resetBtn.addEventListener("click", ()=>{
@@ -140,6 +209,7 @@ function updateSummary() {
   calculateEfficiency();
   updateChart();
   updateGoalProgress(profit - loss);
+  setParticlesDynamic(profit - loss);
 }
 
 // Motyw: przełączanie jasny/ciemny
