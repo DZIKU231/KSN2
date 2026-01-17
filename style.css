@@ -1,3 +1,4 @@
+
 body {
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
@@ -177,7 +178,7 @@ body.light .text h1{
 }
 
 ul li{
-  padding:5px;
+    padding: 5px 10px;
   transition: 0.3s ease-out;
   border-radius: 10px;
   position: relative;
@@ -333,4 +334,52 @@ body.light #goal-widget {
 
 #app{
   margin-top: 10px;
+  user-select: none;
+}
+
+.burger {
+ min-height: auto;
+  margin: 0;
+  padding: 0;
+}
+
+/* ACCORDION */
+#transaction-list {
+    height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0; /* bardzo ważne */
+  margin: 0;
+  transition: height 0.35s ease, opacity 0.25s ease, padding 0.25s ease;
+}
+
+#transaction-list.open {
+  opacity: 1;
+  padding: 5px 0; /* przy otwarciu */
+}
+
+/* Ikona */
+.transaction-header i {
+  cursor: pointer;
+  margin-top: 7px;
+  transition: transform 0.35s ease;
+}
+
+.transaction-header i.rotate {
+  transform: rotate(180deg);
+}
+
+.transaction-header{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.transaction-header span{
+  position: absolute;
+  top: 75%;
+  left: 1%;
+  font-size: 12px;
+  color: #8d8d8d;
 }

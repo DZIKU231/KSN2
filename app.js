@@ -11,11 +11,41 @@ const themeToggle = document.getElementById('theme-toggle');
 const loginBtn = document.querySelector(".login-btn");
 const resetBtn = document.querySelector("#resetBtn");
 
+const transactionBtn = document.querySelector(".transaction-button");
+const icon = transactionBtn.querySelector("i");
+
+
 const goalInput = document.getElementById('goal-input');
 const setGoalBtn = document.getElementById('set-goal-btn');
 const goalProgressText = document.getElementById('goal-progress-text');
 const goalBar = document.getElementById('goal-bar');
 const goalWarning = document.getElementById('goal-warning');
+
+
+let isOpen = false;
+
+transactionBtn.addEventListener("click", () => {
+  if (!isOpen) {
+    list.style.height = list.scrollHeight + "px";
+    list.classList.add("open");
+    icon.classList.add("rotate");
+  } else {
+    list.style.height = list.scrollHeight + "px";
+    requestAnimationFrame(() => {
+      list.style.height = "0";
+    });
+    list.classList.remove("open");
+    icon.classList.remove("rotate");
+  }
+
+  isOpen = !isOpen;
+});
+
+list.addEventListener("transitionend", (e) => {
+  if (isOpen && e.propertyName === "height") {
+    list.style.height = "auto";
+  }
+});
 
 const particleCount = window.innerWidth > 1200 ? 80 :
                       window.innerWidth > 800 ? 60 : 40;
@@ -445,5 +475,6 @@ document.getElementById("goal-short-progress").innerHTML = `${percentage.toFixed
     motivational.textContent = "🎉 Cel zrealizowany! Gratulacje!";
   }
 }
+
 
 
